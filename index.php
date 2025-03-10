@@ -4,7 +4,7 @@ use repository\JsonRepository;
 use repository\SqlRepository;
 use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+$dotenv->Load();
 $dbSource=$_ENV['DB_SOURCE'];
 if ($argc < 2) {
     echo "show Список пользователей\n";
@@ -41,7 +41,15 @@ switch ($command) {
     $UserManager= new SqlRepository;
     switch ($command){
         case 'show':
-            $UserManager->showUsersSql();
+            $users = $UserManager->showUsersSql();
+            if (empty($users)) {
+                echo "Пользователи не найдены.\n";
+            } else {
+                echo "Список пользователей:\n";
+                foreach ($users as $user) {
+                    echo "ID: {$user['ID']}, Name: {$user['Name']}, Email: {$user['Email']}\n";
+                }
+            }
             break;
         case 'add':
             if (isset($argv[2]) and isset($argv[3])) {
@@ -56,11 +64,11 @@ switch ($command) {
             if (isset($argv[2])) {
                 $id = $argv[2];
                 $UserManager->deleteUserSql($id);
+                echo 'Удален пользователь:'. $id;
             } else {
                 echo 'Укажите id';
             }
             break;
-    
     }
 }
 ?>

@@ -4,7 +4,12 @@
             "id": 1,
             "name": "Denis",
             "email": "ozhegov.den@yandex.ru"
+        },
+        {
+            "id": 2,
+            "name": "Denis",
+            "email": "ozhegov.den@yandex.ru"
         }
     ],
-    "nextid": 2
+    "nextid": 3
 }
