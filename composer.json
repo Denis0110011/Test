@@ -1,0 +1,12 @@
+{
+    "name": "ozheg/test",
+    "autoload": {
+        "psr-4": {
+            "repository\\": "src/class/"
+        }
+    },
+    "require": {
+        "vlucas/phpdotenv": "^5.3"
+    }
+}
+ 
