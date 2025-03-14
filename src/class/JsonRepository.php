@@ -1,10 +1,12 @@
 <?php
+
 namespace repository;
+
 use repository\UserRepositoryInterface;
+
 class JsonRepository implements UserRepositoryInterface
 {
-public function __construct(private $FilePath){
-}
+    public function __construct(private $FilePath) {}
     private function LoadUsers(): mixed
     {
         if (!file_exists($this->FilePath)) {
@@ -31,7 +33,6 @@ public function __construct(private $FilePath){
         $data['nextid']++;
         $this->SaveUsers($data);
         return (int) $newUser->id;
-
     }
 
     public function DeleteUser(int $id)
@@ -46,4 +47,3 @@ public function __construct(private $FilePath){
         }
     }
 }
-?>

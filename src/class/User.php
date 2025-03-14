@@ -1,5 +1,7 @@
 <?php
+
 namespace repository;
+
 class User
 {
    public $id;
@@ -12,4 +14,3 @@ class User
       $this->email = $email;
    }
 }
-?>
