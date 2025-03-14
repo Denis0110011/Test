@@ -15,7 +15,7 @@ class JsonRepository
         $jsonContent = file_get_contents($this->FilePath);
         return json_decode($jsonContent, true);
     }
-    private function SaveUsers($data)
+    private function SaveUsers(array $data)
     {
         $jsonContent = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         file_put_contents($this->FilePath, $jsonContent);
@@ -31,7 +31,7 @@ class JsonRepository
             }
         }
     }
-    public function CreateUser($name, $email)
+    public function CreateUser(string $name, string $email)
     {
         $data = $this->LoadUsers();
         $newUser = new User($data['nextid'], $name, $email);
@@ -42,7 +42,7 @@ class JsonRepository
 
     }
 
-    public function DeleteUser($id)
+    public function DeleteUser(int $id)
     {
         $data = $this->LoadUsers();
         foreach ($data['users'] as $index => $user) {

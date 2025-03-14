@@ -26,7 +26,7 @@ class SqlRepository
             throw new Exception('Failed to connect to database: ' . $e->getMessage());
         }
     }
-    public function createUserSql($name, $email)
+    public function createUserSql(string $name, string $email): int
     {
         if (empty($name) || empty($email)) {
             throw new Exception('Name and email are required.');
@@ -38,11 +38,11 @@ class SqlRepository
         $sql = 'INSERT INTO users (Name, Email) VALUES (:name, :email)';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['name' => $name, 'email' => $email]);
-        return $this->pdo->lastInsertId();
+        return (int)$this->pdo->lastInsertId();
     }
 
-    // Метод для удаления пользователя
-    public function deleteUserSql($id)
+    
+    public function deleteUserSql(int $id): int
     {
         if (empty($id) || !is_numeric($id)) {
             throw new Exception('Invalid user ID.');
@@ -51,17 +51,17 @@ class SqlRepository
         $sql = 'DELETE FROM users WHERE ID=:id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
-        return $id;
+        return (int)$id;
     }
 
 
-    public function showUsersSql()
+    public function showUsersSql(): array
     {
         $sql = 'SELECT * FROM users';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         $users=$stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $users;
+        return (array)$users;
     }
 
 
