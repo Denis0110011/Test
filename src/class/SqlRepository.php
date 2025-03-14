@@ -1,4 +1,5 @@
 <?php
+
 namespace repository;
 
 
@@ -42,7 +43,7 @@ class SqlRepository implements UserRepositoryInterface
         return (int)$this->pdo->lastInsertId();
     }
 
-    
+
     public function deleteUser(int $id): int
     {
         if (empty($id) || !is_numeric($id)) {
@@ -61,7 +62,7 @@ class SqlRepository implements UserRepositoryInterface
         $sql = 'SELECT * FROM users';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
-        $users=$stmt->fetchAll(PDO::FETCH_ASSOC);
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return (array)$users;
     }
 
