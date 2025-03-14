@@ -1,11 +1,12 @@
 <?php
-
 namespace repository;
 
+
+use repository\UserRepositoryInterface;
 use PDO;
 use Exception;
 
-class SqlRepository
+class SqlRepository implements UserRepositoryInterface
 {
     private $pdo;
 
@@ -26,7 +27,7 @@ class SqlRepository
             throw new Exception('Failed to connect to database: ' . $e->getMessage());
         }
     }
-    public function createUserSql(string $name, string $email): int
+    public function createUser(string $name, string $email): int
     {
         if (empty($name) || empty($email)) {
             throw new Exception('Name and email are required.');
@@ -35,27 +36,27 @@ class SqlRepository
             throw new Exception('Invalid email format.');
         }
 
-        $sql = 'INSERT INTO users (Name, Email) VALUES (:name, :email)';
+        $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['name' => $name, 'email' => $email]);
         return (int)$this->pdo->lastInsertId();
     }
 
     
-    public function deleteUserSql(int $id): int
+    public function deleteUser(int $id): int
     {
         if (empty($id) || !is_numeric($id)) {
             throw new Exception('Invalid user ID.');
         }
 
-        $sql = 'DELETE FROM users WHERE ID=:id';
+        $sql = 'DELETE FROM users WHERE id=:id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
         return (int)$id;
     }
 
 
-    public function showUsersSql(): array
+    public function showUsers(): array
     {
         $sql = 'SELECT * FROM users';
         $stmt = $this->pdo->prepare($sql);
@@ -65,7 +66,7 @@ class SqlRepository
     }
 
 
-    public function closeConnection()
+    public function closeConnection(): void
     {
         $this->pdo = null;
     }

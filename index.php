@@ -14,16 +14,25 @@ if ($argc < 2) {
 }
 $command = $argv[1];
 if ($dbSource=='json'){
-$UserManager = new JsonRepository('Json/Users.json');
+$UserManager = new JsonRepository('Users.json');
+}
+elseif($dbSource=='mysql'){
+$UserManager = new SqlRepository();   
+}
 switch ($command) {
     case 'show':
-        $UserManager->ShowUsers();
+        $users=$UserManager->ShowUsers();
+        foreach ($users as $user){
+            echo ' id:'. $user['id']. ' name:'. $user['name']. ' email:'. $user['email']. "\n";;
+        }
+
         break;
     case 'add':
-        if (isset($argv[2]) and isset($argv[3])) {
+        if (isset($argv[2]) && isset($argv[3])) {
             $name = $argv[2];
             $email = $argv[3];
-            $UserManager->CreateUser($name, $email);
+            $UserID=$UserManager->CreateUser($name, $email);
+            echo 'Добавлен пользователь:'.$UserID; 
         } else {
             echo 'Укажите имя и e-mail';
         }
@@ -31,44 +40,11 @@ switch ($command) {
     case 'delete':
         if (isset($argv[2])) {
             $id = $argv[2];
-            $UserManager->DeleteUser($id);
+            $UserID=$UserManager->DeleteUser($id);
+            echo 'Удален пользователь:'. $UserID;
         } else {
             echo 'Укажите id';
         }
         break;
-}
-}elseif($dbSource=='mysql'){
-    $UserManager= new SqlRepository;
-    switch ($command){
-        case 'show':
-            $users = $UserManager->showUsersSql();
-            if (empty($users)) {
-                echo "Пользователи не найдены.\n";
-            } else {
-                echo "Список пользователей:\n";
-                foreach ($users as $user) {
-                    echo "ID: {$user['ID']}, Name: {$user['Name']}, Email: {$user['Email']}\n";
-                }
-            }
-            break;
-        case 'add':
-            if (isset($argv[2]) and isset($argv[3])) {
-                $name = $argv[2];
-                $email = $argv[3];
-                $UserManager->createUserSql($name, $email);
-            } else {
-                echo 'Укажите имя и e-mail';
-            }
-            break;
-        case 'delete':
-            if (isset($argv[2])) {
-                $id = $argv[2];
-                $UserManager->deleteUserSql($id);
-                echo 'Удален пользователь:'. $id;
-            } else {
-                echo 'Укажите id';
-            }
-            break;
-    }
 }
 ?>
