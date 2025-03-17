@@ -1,12 +1,18 @@
 {
-    "name": "ozheg/test",
-    "autoload": {
-        "psr-4": {
-            "repository\\": "src/class/"
-        }
-    },
-    "require": {
-        "vlucas/phpdotenv": "^5.3"
+  "name": "ozheg/test",
+  "autoload": {
+    "psr-4": {
+      "repository\\": "src/class/"
     }
+  },
+  "require": {
+    "vlucas/phpdotenv": "^5.3",
+    "slim/slim": "4.*",
+    "slim/psr7": "^1.7"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.72",
+    "phpyh/coding-standard": "^2.6",
+    "rector/rector": "^2.0"
+  }
 }
- 

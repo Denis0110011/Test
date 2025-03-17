@@ -1,3 +1,6 @@
 .vscode
 vendor
-Json
+Users.json
+step2.php
+.php-cs-fixer.dist.php
+.php-cs-fixer.cache
