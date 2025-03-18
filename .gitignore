@@ -1,6 +1,5 @@
 .vscode
 vendor
 Users.json
-step2.php
 .php-cs-fixer.dist.php
 .php-cs-fixer.cache
