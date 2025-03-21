@@ -2,7 +2,8 @@
   "name": "ozheg/test",
   "autoload": {
     "psr-4": {
-      "repository\\": "src/class/"
+      "repository\\": "src/class/",
+      "Service\\": "src/class/"
     }
   },
   "require": {
