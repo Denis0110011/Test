@@ -1,4 +1,6 @@
-<?
+<?php
+
+declare(strict_types=1);
 
 namespace repository;
 
@@ -10,23 +12,21 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 
-
-
-
-class HttpHandler
+final class HttpHandler
 {
-
-    public function showUsers($UserManager)
+    public function showUsers($UserManager): void
     {
         $app = AppFactory::create();
         $this->app->get('/show-users', static function (Request $request, Response $response, array $args) use ($UserManager) {
             $users = $UserManager->ShowUsers();
             $response->getBody()->write(json_encode($users));
+
             return $response->withHeader('Content-type', 'application/json');
         });
         $app->run();
     }
-    public function createUser($UserManager)
+
+    public function createUser($UserManager): void
     {
         $app = AppFactory::create();
         $this->app->post('/create-user', static function (Request $request, Response $response, array $args) use ($UserManager) {
@@ -43,7 +43,8 @@ class HttpHandler
         });
         $app->run();
     }
-    public function deleteUser($UserManager)
+
+    public function deleteUser($UserManager): void
     {
         $app = AppFactory::create();
         $this->app->delete('/delete-user/{id}', static function (Request $request, Response $response, array $args) use ($UserManager) {
