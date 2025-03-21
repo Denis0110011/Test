@@ -6,11 +6,8 @@ require_once 'src/class/HttpHandler.php';
 
 use repository\HttpHandler;
 use Service\UserService;
-use Slim\Factory\AppFactory;
-use Slim\Psr7\Request;
-use Slim\Psr7\Response;
 
-if (php_sapi_name() === 'cli') {
+if (PHP_SAPI === 'cli') {
     if ($argc < 2) {
         echo "show Список пользователей\n";
         echo "add Добавить пользователя <name> <email>\n";
