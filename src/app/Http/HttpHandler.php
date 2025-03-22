@@ -15,19 +15,19 @@ use Slim\Factory\AppFactory;
 final class HttpHandler
 {
     private $app;
-
     public function __construct()
     {
         $this->app = AppFactory::create();
     }
-
     public function registerRoutes($UserService): void
     {
-
+        $this->app->get('/', static function (Request $request, Response $response, array $args) use ($UserService) {
+            $response->getBody()->write('GET/show-users <br> POST/create-user <br> DELETE/delete-user/{id}');
+            return $response;
+        });
         $this->app->get('/show-users', static function (Request $request, Response $response, array $args) use ($UserService) {
             $users = $UserService->ShowUsers();
             $response->getBody()->write(json_encode($users));
-
             return $response->withHeader('Content-type', 'application/json');
         });
         $this->app->post('/create-user', static function (Request $request, Response $response, array $args) use ($UserService) {
@@ -56,7 +56,6 @@ final class HttpHandler
             return $response->withHeader('Content-type', 'application/json');
         });
     }
-
     public function run(): void
     {
         $this->app->run();
