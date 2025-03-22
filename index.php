@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 require_once 'vendor/autoload.php';
-require_once 'src/class/HttpHandler.php';
 
-use repository\HttpHandler;
-use Service\UserService;
+use App\Http\HttpHandler;
+use App\Service\UserService;
+use Dotenv\Dotenv;
 
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+$env = $_ENV['DB_SOURCE'];
 if (PHP_SAPI === 'cli') {
     if ($argc < 2) {
         echo "show Список пользователей\n";
@@ -15,10 +18,10 @@ if (PHP_SAPI === 'cli') {
         exit(1);
     }
     $command = $argv[1];
-    $UserManager = new UserService();
+    $userService = new UserService($env);
     switch ($command) {
         case 'show':
-            $users = $UserManager->showUsers();
+            $users = $userService->showUsers();
             foreach ($users as $user) {
                 echo ' id:' . $user['id'] . ' name:' . $user['name'] . ' email:' . $user['email'] . "\n";
             }
@@ -27,26 +30,29 @@ if (PHP_SAPI === 'cli') {
             if (isset($argv[2], $argv[3])) {
                 $name = $argv[2];
                 $email = $argv[3];
-                $UserID = $UserManager->CreateUser($name, $email);
-                echo 'Добавлен пользователь:' . $UserID;
+                $userID = $UserService->createUser($name, $email);
+                echo 'user created:' . $userID;
             } else {
-                echo 'Укажите имя и e-mail';
+                echo 'enter your name and email';
             }
             break;
         case 'delete':
             if (isset($argv[2])) {
                 $id = (int) $argv[2];
-                $UserID = $UserManager->DeleteUser($id);
-                echo 'Удален пользователь:' . $UserID;
+                $userID = $UserService->deleteUser($id);
+                if ($UserID !== 0) {
+                    echo 'deleted user:' . $userID;
+                } else {
+                    echo 'user not found';
+                }
             } else {
-                echo 'Укажите id';
+                echo 'enter id';
             }
             break;
     }
     exit;
 }
-$UserManager = new UserService();
-$httpHandler = new HttpHandler();
-$httpHandler->showUsers($UserManager);
-$httpHandler->createUser($UserManager);
-$httpHandler->deleteUser($UserManager);
+$UserService = new UserService($env);
+$httpHanler = new HttpHandler();
+$httpHanler->registerRoutes($UserService);
+$httpHanler->run();

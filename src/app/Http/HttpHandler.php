@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace repository;
+namespace App\Http;
 
 require_once 'vendor/autoload.php';
 
@@ -14,44 +14,39 @@ use Slim\Factory\AppFactory;
 
 final class HttpHandler
 {
-    public function showUsers($UserManager): void
+    private $app;
+
+    public function __construct()
     {
-        $app = AppFactory::create();
-        $this->app->get('/show-users', static function (Request $request, Response $response, array $args) use ($UserManager) {
-            $users = $UserManager->ShowUsers();
+        $this->app = AppFactory::create();
+    }
+
+    public function registerRoutes($UserService): void
+    {
+
+        $this->app->get('/show-users', static function (Request $request, Response $response, array $args) use ($UserService) {
+            $users = $UserService->ShowUsers();
             $response->getBody()->write(json_encode($users));
 
             return $response->withHeader('Content-type', 'application/json');
         });
-        $app->run();
-    }
-
-    public function createUser($UserManager): void
-    {
-        $app = AppFactory::create();
-        $this->app->post('/create-user', static function (Request $request, Response $response, array $args) use ($UserManager) {
+        $this->app->post('/create-user', static function (Request $request, Response $response, array $args) use ($UserService) {
             $data = json_decode($request->getBody()->getContents(), true);
             if (!isset($data['name']) || !isset($data['email'])) {
                 $response->getBody()->write(json_encode(['error' => 'enter your name and email']));
 
                 return $response->withStatus(400)->withHeader('Content-type', 'application/json');
             }
-            $userId = $UserManager->CreateUser($data['name'], $data['email']);
-            $response->getBody()->write(json_encode(['userid' => $userId]));
+            $userId = $UserService->CreateUser($data['name'], $data['email']);
+            $response->getBody()->write(json_encode(['user created' => $userId]));
 
             return $response->withHeader('Content-type', 'application/json');
         });
-        $app->run();
-    }
-
-    public function deleteUser($UserManager): void
-    {
-        $app = AppFactory::create();
-        $this->app->delete('/delete-user/{id}', static function (Request $request, Response $response, array $args) use ($UserManager) {
+        $this->app->delete('/delete-user/{id}', static function (Request $request, Response $response, array $args) use ($UserService) {
             $id = (int) $args['id'];
-            $userId = $UserManager->DeleteUser($id);
-            if (!isset($userId)) {
-                $response->getBody()->write(json_encode(['deletedUser' => $userId]));
+            $userId = $UserService->DeleteUser($id);
+            if ($userId !== 0) {
+                $response->getBody()->write(json_encode(['user deleted' => $userId]));
             } else {
                 $response->getBody()->write(json_encode(['error' => 'user not found']));
 
@@ -60,6 +55,10 @@ final class HttpHandler
 
             return $response->withHeader('Content-type', 'application/json');
         });
-        $app->run();
+    }
+
+    public function run(): void
+    {
+        $this->app->run();
     }
 }

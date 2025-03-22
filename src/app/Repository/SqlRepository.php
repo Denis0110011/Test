@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace repository;
+namespace App\Repository;
 
 final class SqlRepository implements UserRepositoryInterface
 {
@@ -30,9 +30,6 @@ final class SqlRepository implements UserRepositoryInterface
         if (empty($name) || empty($email)) {
             throw new \Exception('Name and email are required.');
         }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new \Exception('Invalid email format.');
-        }
 
         $sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';
         $stmt = $this->pdo->prepare($sql);
@@ -43,12 +40,15 @@ final class SqlRepository implements UserRepositoryInterface
 
     public function deleteUser(int $id): int
     {
-        if (empty($id) || !is_numeric($id)) {
+        if ($id <= 0) {
             throw new \Exception('Invalid user ID.');
         }
         $sql = 'DELETE FROM users WHERE id=:id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
+        if ($stmt->rowCount() === 0) {
+            return 0;
+        }
 
         return (int) $id;
     }

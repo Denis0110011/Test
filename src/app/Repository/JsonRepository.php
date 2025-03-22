@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace repository;
+namespace App\Repository;
 
 final class JsonRepository implements UserRepositoryInterface
 {
     public function __construct(private $FilePath) {}
 
-    private function LoadUsers(): mixed
+    private function loadUsers(): mixed
     {
         if (!file_exists($this->FilePath)) {
             file_put_contents($this->FilePath, json_encode(['users' => [], 'nextid' => 1], JSON_PRETTY_PRINT));
@@ -18,22 +18,22 @@ final class JsonRepository implements UserRepositoryInterface
         return json_decode($jsonContent, true);
     }
 
-    private function SaveUsers(array $data): void
+    private function saveUsers(array $data): void
     {
         $jsonContent = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         file_put_contents($this->FilePath, $jsonContent);
     }
 
-    public function ShowUsers(): mixed
+    public function showUsers(): array
     {
-        $data = $this->LoadUsers();
+        $data = $this->loadUsers();
 
         return $data['users'];
     }
 
-    public function CreateUser(string $name, string $email): int
+    public function createUser(string $name, string $email): int
     {
-        $data = $this->LoadUsers();
+        $data = $this->loadUsers();
         $newUser = new User($data['nextid'], $name, $email);
         $data['users'][] = $newUser;
         ++$data['nextid'];
@@ -42,9 +42,9 @@ final class JsonRepository implements UserRepositoryInterface
         return (int) $newUser->id;
     }
 
-    public function DeleteUser($id)
+    public function deleteUser($id): int
     {
-        $data = $this->LoadUsers();
+        $data = $this->loadUsers();
         foreach ($data['users'] as $index => $user) {
             if ($user['id'] === $id) {
                 array_splice($data['users'], $index, 1);
@@ -53,5 +53,7 @@ final class JsonRepository implements UserRepositoryInterface
                 return (int) $id;
             }
         }
+
+        return 0;
     }
 }
