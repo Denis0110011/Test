@@ -8,7 +8,7 @@ final class JsonRepository implements UserRepositoryInterface
 {
     public function __construct(private $FilePath) {}
 
-    private function loadUsers(): mixed
+    private function loadUsers(): array
     {
         if (!file_exists($this->FilePath)) {
             file_put_contents($this->FilePath, json_encode(['users' => [], 'nextid' => 1], JSON_PRETTY_PRINT));
