@@ -8,54 +8,73 @@ require_once 'vendor/autoload.php';
 
 
 
+use App\Command\CreateUserCommand;
+use App\Command\DeleteUserCommand;
+use App\Command\ShowUserCommand;
+use App\Service\UserService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\App;
 use Slim\Factory\AppFactory;
 
 final class HttpHandler
 {
-    private $app;
+    private App $app;
+
     public function __construct()
     {
         $this->app = AppFactory::create();
     }
-    public function registerRoutes($UserService): void
+
+    public function registerRoutes(UserService $userService): void
     {
-        $this->app->get('/', static function (Request $request, Response $response, array $args) use ($UserService) {
+        $showCommand = new ShowUserCommand($userService);
+        $createCommand = new CreateUserCommand($userService);
+        $deleteCommand = new DeleteUserCommand($userService);
+        $this->app->get('/', static function (Request $request, Response $response) {
             $response->getBody()->write('GET/show-users <br> POST/create-user <br> DELETE/delete-user/{id}');
+
             return $response;
         });
-        $this->app->get('/show-users', static function (Request $request, Response $response, array $args) use ($UserService) {
-            $users = $UserService->ShowUsers();
-            $response->getBody()->write(json_encode($users));
+        $this->app->get('/show-users', static function (Request $request, Response $response) use ($showCommand): Response {
+            $result = $showCommand->execute([]);
+            $response->getBody()->write(json_encode($result));
+
             return $response->withHeader('Content-type', 'application/json');
         });
-        $this->app->post('/create-user', static function (Request $request, Response $response, array $args) use ($UserService) {
+        $this->app->post('/create-user', static function (Request $request, Response $response) use ($createCommand): Response {
             $data = json_decode($request->getBody()->getContents(), true);
-            if (!isset($data['name']) || !isset($data['email'])) {
-                $response->getBody()->write(json_encode(['error' => 'enter your name and email']));
 
-                return $response->withStatus(400)->withHeader('Content-type', 'application/json');
+            try {
+                $result = $createCommand->execute($data);
+                $response->getBody()->write(json_encode($result));
+
+                return $response->withHeader('Content-Type', 'application/json');
+            } catch (\InvalidArgumentException $e) {
+                $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+
+                return $response->withStatus(400)->withHeader('Content Type', 'application/json');
             }
-            $userId = $UserService->CreateUser($data['name'], $data['email']);
-            $response->getBody()->write(json_encode(['user created' => $userId]));
-
-            return $response->withHeader('Content-type', 'application/json');
         });
-        $this->app->delete('/delete-user/{id}', static function (Request $request, Response $response, array $args) use ($UserService) {
-            $id = (int) $args['id'];
-            $userId = $UserService->DeleteUser($id);
-            if ($userId !== 0) {
-                $response->getBody()->write(json_encode(['user deleted' => $userId]));
-            } else {
-                $response->getBody()->write(json_encode(['error' => 'user not found']));
+        $this->app->delete('/delete-user/{id}', static function (Request $request, Response $response, array $args) use ($deleteCommand): Response {
+            try {
+                $result = $deleteCommand->execute(['id' => $args['id']]);
+                if (isset($result['error'])) {
+                    $response->getBody()->write(json_encode($result));
 
-                return $response->withStatus(404);
+                    return $response->withHeader('Content-Type', 'application/json');
+                }
+                $response->getBody()->write(json_encode($result));
+
+                return $response->withHeader('Content-Type', 'application/json');
+            } catch (\InvalidArgumentException $e) {
+                $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+
+                return $response->withHeader('Content-Type', 'application/json');
             }
-
-            return $response->withHeader('Content-type', 'application/json');
         });
     }
+
     public function run(): void
     {
         $this->app->run();

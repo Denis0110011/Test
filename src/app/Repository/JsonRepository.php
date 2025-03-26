@@ -6,14 +6,14 @@ namespace App\Repository;
 
 final class JsonRepository implements UserRepositoryInterface
 {
-    public function __construct(private $FilePath) {}
+    public function __construct(private string $filePath) {}
 
     private function loadUsers(): array
     {
-        if (!file_exists($this->FilePath)) {
-            file_put_contents($this->FilePath, json_encode(['users' => [], 'nextid' => 1], JSON_PRETTY_PRINT));
+        if (!file_exists($this->filePath)) {
+            file_put_contents($this->filePath, json_encode(['users' => [], 'nextid' => 1], JSON_PRETTY_PRINT));
         }
-        $jsonContent = file_get_contents($this->FilePath);
+        $jsonContent = file_get_contents($this->filePath);
 
         return json_decode($jsonContent, true);
     }
@@ -21,14 +21,17 @@ final class JsonRepository implements UserRepositoryInterface
     private function saveUsers(array $data): void
     {
         $jsonContent = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        file_put_contents($this->FilePath, $jsonContent);
+        file_put_contents($this->filePath, $jsonContent);
     }
 
+    /**
+     * @return array<User>
+     */
     public function showUsers(): array
     {
         $data = $this->loadUsers();
 
-        return $data['users'];
+        return array_map(static fn(array $userData) => new User($userData['id'], $userData['name'], $userData['email']), $data['users']);
     }
 
     public function createUser(string $name, string $email): int
@@ -39,10 +42,10 @@ final class JsonRepository implements UserRepositoryInterface
         ++$data['nextid'];
         $this->SaveUsers($data);
 
-        return (int) $newUser->id;
+        return $newUser->id;
     }
 
-    public function deleteUser($id): int
+    public function deleteUser(int $id): int
     {
         $data = $this->loadUsers();
         foreach ($data['users'] as $index => $user) {
@@ -50,7 +53,7 @@ final class JsonRepository implements UserRepositoryInterface
                 array_splice($data['users'], $index, 1);
                 $this->SaveUsers($data);
 
-                return (int) $id;
+                return $id;
             }
         }
 

@@ -3,13 +3,23 @@
 declare(strict_types=1);
 require_once 'vendor/autoload.php';
 
+use App\Command\CreateUserCommand;
+use App\Command\DeleteUserCommand;
+use App\Command\ShowUserCommand;
 use App\Http\HttpHandler;
+use App\Repository\JsonRepository;
+use App\Repository\SqlRepository;
 use App\Service\UserService;
 use Dotenv\Dotenv;
 
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 $env = $_ENV['DB_SOURCE'];
+if ($env === 'json') {
+    $repository = new JsonRepository('Users.Json');
+} elseif ($env === 'mysql') {
+    $repository = new SqlRepository($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
+}
 if (PHP_SAPI === 'cli') {
     if ($argc < 2) {
         echo "show Список пользователей\n";
@@ -18,41 +28,33 @@ if (PHP_SAPI === 'cli') {
         exit(1);
     }
     $command = $argv[1];
-    $userService = new UserService($env);
+    $userService = new UserService($repository);
     switch ($command) {
         case 'show':
-            $users = $userService->showUsers();
-            foreach ($users as $user) {
-                echo ' id:' . $user['id'] . ' name:' . $user['name'] . ' email:' . $user['email'] . "\n";
+            $command = new ShowUserCommand($userService);
+            $result = $command->execute([]);
+            foreach ($result['users'] as $user) {
+                echo "id:{$user->id}  name:{$user->name} email:{$user->email} \n";
             }
             break;
         case 'add':
-            if (isset($argv[2], $argv[3])) {
-                $name = $argv[2];
-                $email = $argv[3];
-                $userID = $UserService->createUser($name, $email);
-                echo 'user created:' . $userID;
-            } else {
-                echo 'enter your name and email';
-            }
+            $command = new CreateUserCommand($userService);
+            $result = $command->execute(['name' => $argv[2], 'email' => $argv[3]]);
+            echo 'User created:' . $result['user_id'];
             break;
         case 'delete':
-            if (isset($argv[2])) {
-                $id = (int) $argv[2];
-                $userID = $UserService->deleteUser($id);
-                if ($UserID !== 0) {
-                    echo 'deleted user:' . $userID;
-                } else {
-                    echo 'user not found';
-                }
-            } else {
-                echo 'enter id';
+            $command = new DeleteUserCommand($userService);
+            $result = $command->execute(['id' => $argv[2]]);
+            if (!isset($result['error'])) {
+                echo 'User deleted:' . $result['user_id'];
+                exit;
             }
-            break;
+            echo $result['error'];
+            exit(1);
     }
     exit;
 }
-$UserService = new UserService($env);
+$userService = new UserService($repository);
 $httpHanler = new HttpHandler();
-$httpHanler->registerRoutes($UserService);
+$httpHanler->registerRoutes(userService: $userService);
 $httpHanler->run();

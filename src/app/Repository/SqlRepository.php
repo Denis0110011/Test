@@ -6,17 +6,17 @@ namespace App\Repository;
 
 final class SqlRepository implements UserRepositoryInterface
 {
-    private $pdo;
+    private \PDO $pdo;
 
-    public function __construct()
+    public function __construct(private string $host, private string $dbname, private string $username, private string $password)
     {
-        $this->pdo = $this->connectToPDO();
+        $this->pdo = $this->connectToPDO($this->host, $this->dbname, $this->username, $this->password);
     }
 
-    private function connectToPDO()
+    private function connectToPDO(string $host, string $dbname, string $username, string $password): \PDO
     {
         try {
-            $pdo = new \PDO('mysql:host=localhost;dbname=test', 'root', '');
+            $pdo = new \PDO("mysql:host={$host};dbname={$dbname}", $username, $password);
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             return $pdo;
@@ -50,21 +50,23 @@ final class SqlRepository implements UserRepositoryInterface
             return 0;
         }
 
-        return (int) $id;
+        return $id;
     }
 
+    /**
+     * @return array<User>
+     */
     public function showUsers(): array
     {
         $sql = 'SELECT * FROM users';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
-        $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $users = [];
 
-        return (array) $users;
-    }
+        while ($row = $stmt->fetch()) {
+            $users[] = new User((int) $row['id'], (string) $row['name'], (string) $row['email']);
+        }
 
-    public function closeConnection(): void
-    {
-        $this->pdo = null;
+        return $users;
     }
 }

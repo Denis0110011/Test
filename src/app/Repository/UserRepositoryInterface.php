@@ -6,6 +6,9 @@ namespace App\Repository;
 
 interface UserRepositoryInterface
 {
+    /**
+     * @return array<User>
+     */
     public function showUsers(): array;
 
     public function deleteUser(int $id): int;
