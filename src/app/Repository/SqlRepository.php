@@ -43,6 +43,7 @@ final class SqlRepository implements UserRepositoryInterface
 
         return (int) $this->pdo->lastInsertId();
     }
+
     /**
      * @throws \InvalidArgumentException When invalid user ID is provided
      */
