@@ -1,17 +1,57 @@
 <?xml version="1.0"?>
 <psalm
-    errorLevel="5"
-    resolveFromConfigFile="true"
+    cacheDirectory="var/psalm"
+    checkForThrowsDocblock="true"
+    checkForThrowsInGlobalScope="true"
+    disableSuppressAll="true"
+    ensureArrayStringOffsetsExist="true"
+    errorLevel="1"
+    findUnusedCode="false"
+    findUnusedBaselineEntry="true"
+    findUnusedPsalmSuppress="true"
+    findUnusedVariablesAndParams="true"
+    memoizeMethodCallResults="true"
+    reportMixedIssues="true"
+    sealAllMethods="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-    findUnusedBaselineEntry="true"
-    findUnusedCode="true"
 >
     <projectFiles>
         <directory name="src" />
         <ignoreFiles>
-            <directory name="vendor" />
+            <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
+
+    <forbiddenFunctions>
+        <function name="dd"/>
+        <function name="die"/>
+        <function name="dump"/>
+        <function name="echo"/>
+        <function name="empty"/>
+        <function name="eval"/>
+        <function name="exit"/>
+        <function name="print"/>
+        <function name="print_r"/>
+        <function name="var_export"/>
+    </forbiddenFunctions>
+
+    <issueHandlers>
+        <MissingThrowsDocblock>
+            <errorLevel type="suppress">
+            </errorLevel>
+        </MissingThrowsDocblock>
+        <MixedAssignment errorLevel="suppress"/>
+    </issueHandlers>
+
+    <ignoreExceptions>
+        <classAndDescendants name="LogicException"/>
+        <classAndDescendants name="RuntimeException"/>
+        <classAndDescendants name="ReflectionException"/>
+        <classAndDescendants name="JsonException"/>
+        <classAndDescendants name="Doctrine\DBAL\Exception"/>
+        <classAndDescendants name="Psr\Container\ContainerExceptionInterface"/>
+    </ignoreExceptions>
+
 </psalm>

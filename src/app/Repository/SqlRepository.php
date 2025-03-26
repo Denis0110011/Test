@@ -13,6 +13,9 @@ final class SqlRepository implements UserRepositoryInterface
         $this->pdo = $this->connectToPDO($this->host, $this->dbname, $this->username, $this->password);
     }
 
+    /**
+     * @throws RuntimeException When database connection fails
+     */
     private function connectToPDO(string $host, string $dbname, string $username, string $password): \PDO
     {
         try {
@@ -25,9 +28,12 @@ final class SqlRepository implements UserRepositoryInterface
         }
     }
 
+    /**
+     * @throws \InvalidArgumentException When name or email are empty
+     */
     public function createUser(string $name, string $email): int
     {
-        if (empty($name) || empty($email)) {
+        if ($name = '' || $email = '') {
             throw new \Exception('Name and email are required.');
         }
 
@@ -37,7 +43,9 @@ final class SqlRepository implements UserRepositoryInterface
 
         return (int) $this->pdo->lastInsertId();
     }
-
+    /**
+     * @throws \InvalidArgumentException When invalid user ID is provided
+     */
     public function deleteUser(int $id): int
     {
         if ($id <= 0) {
@@ -61,6 +69,7 @@ final class SqlRepository implements UserRepositoryInterface
         $sql = 'SELECT * FROM users';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
+        /** @var array{id: int, name: string, email: string} $row */
         $users = [];
 
         while ($row = $stmt->fetch()) {
