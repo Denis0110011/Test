@@ -14,7 +14,7 @@ final class SqlRepository implements UserRepositoryInterface
     }
 
     /**
-     * @throws RuntimeException When database connection fails
+     * @throws \RuntimeException When database connection fails
      */
     private function connectToPDO(string $host, string $dbname, string $username, string $password): \PDO
     {
