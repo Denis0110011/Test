@@ -31,19 +31,19 @@ if (PHP_SAPI === 'cli') {
     $userService = new UserService($repository);
     switch ($command) {
         case 'show':
-            $command = new ShowUserCommand($userService);
+            $command = new ShowUserCommand(userService: $userService);
             $result = $command->execute([]);
             foreach ($result['users'] as $user) {
                 echo "id:{$user->id}  name:{$user->name} email:{$user->email} \n";
             }
             break;
         case 'add':
-            $command = new CreateUserCommand($userService);
+            $command = new CreateUserCommand(userService: $userService);
             $result = $command->execute(['name' => $argv[2], 'email' => $argv[3]]);
             echo 'User created:' . $result['user_id'];
             break;
         case 'delete':
-            $command = new DeleteUserCommand($userService);
+            $command = new DeleteUserCommand(userService: $userService);
             $result = $command->execute(['id' => $argv[2]]);
             if (!isset($result['error'])) {
                 echo 'User deleted:' . $result['user_id'];
