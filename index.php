@@ -55,6 +55,6 @@ if (PHP_SAPI === 'cli') {
     exit;
 }
 $userService = new UserService($repository);
-$httpHanler = new HttpHandler();
-$httpHanler->registerRoutes(userService: $userService);
-$httpHanler->run();
+$httpHandler = new HttpHandler();
+$httpHandler->registerRoutes(userService: $userService);
+$httpHandler->run();
