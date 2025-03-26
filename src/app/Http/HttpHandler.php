@@ -31,7 +31,7 @@ final class HttpHandler
         $showCommand = new ShowUserCommand($userService);
         $createCommand = new CreateUserCommand($userService);
         $deleteCommand = new DeleteUserCommand($userService);
-        $this->app->get('/', static function (Request $request, Response $response) {
+        $this->app->get('/', static function (Request $request, Response $response): Response {
             $response->getBody()->write('GET/show-users <br> POST/create-user <br> DELETE/delete-user/{id}');
 
             return $response;
